@@ -1,41 +1,78 @@
+//            BANCO DE DADOS     HTTP
+// [C]reat    insert             post
+// [R]read    select             get
+// [U]pdate   update             put
+// [U]pdate   update             patch
+// [D]elete   delete             delete
+
+import { db } from "./db"
+
 const srv = Bun.serve({
     port: 3000,
     routes: {
-        "/": {
-            GET: (a) => {
-                const url = new URL(a.url)
-                const search = url.searchParams
-                const nome = search.get("nome")
-                console.log(nome)
-                return new Response("oi " + nome)
-            },
-        },
-
-        "/pessoa/:id": {
-            GET: (req) => {
-            return new Response(`oi ${req.params.id}`)
-            }
-        },
-
-        "/test": {
-            GET: (req) => {
-                const url = new URL(req.url)
-                const search = url.searchParams
-                const nome = search.get("nome")
-                console.log(nome)
-                new Response("Andrei Bobão_GET")
+        "/user": {
+            GET: () => {
+                const query = db.query(`SELECT * FROM users`)
+                const data = query.all()
+                return Response.json(data)
             },
 
             POST: async (req) => {
-                const body = await req.body.text()
-                console.log(body)
-                return new Response("Andrei Bobão_POST")
+                const body = await req.body.json()
+                const query = db.query(`
+                    INSERT INTO users(username, email, password_hash)
+                    VALUES(:username, :email, :password_hash)
+                `)
+                const dbResp = query.run({
+                    ':username': body.username,
+                    ':email': body.email,
+                    ':password_hash': body.password
+                })
+                return Response.json({
+                    "message": "deu boa garote!",
+                    dbResp
+                })
+            },
+        },
+
+        "/user/:id": {
+            GET: (req) => {
+                const id = req.params.id
+                const query = db.query(`SELECT * FROM users WHERE id=:id`)
+                const data = query.get({ ':id': id })
+                return Response.json(data)
             },
 
-            PUT: () => new Response("Andrei Bobão_PUT"),
-            DELETE: () => new Response("Andrei Bobão_DELETE")
-        }
+            PUT: async(req) => {
+                const body = await req.body.json()
+                const query = db.query(`UPDATE users SET username = :username, email = :email, password_hash = :password WHERE id = :id`)
+                const dbResp = query.run({
+                    ':username': body.username,
+                    ':email': body.email,
+                    ':password': body.password,
+                    ':id': req.params.id
+                })
+                return Response.json(dbResp)
+            },
+
+            DELETE: (req) => {
+                const query = db.query(`DELETE FROM users WHERE id=:id`)
+                const data = query.run({ ':id': req.params.id })
+                return Response.json(data)
+            },
+        },
+
+        "/coisa": {
+            GET: () => Response.json({}, { status: 501 }),
+            POST: () => Response.json({}, { status: 501 }),
+        },
+
+        "/coisa/:id": {
+            GET: () => Response.json({}, { status: 501 }),
+            PUT: () => Response.json({}, { status: 501 }),
+            DELETE: () => Response.json({}, { status: 501 }),
+        },
     }
 })
 
-console.log(`Server running: ${srv.url}`)
+console.log(`Servidor em ${srv.url}`)
