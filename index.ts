@@ -162,7 +162,7 @@ async function createSticker(req: Request) {
     if (body instanceof Response) return body;
 
     const data = validateSticker(body);
-    if (data.error) return data.error;
+    if ("error" in data) return data.error;
 
     const result = db.query(
         "INSERT INTO stickers (nome, imagem, categoria) VALUES (?, ?, ?)"
@@ -184,7 +184,7 @@ async function replaceSticker(req: Request, id: number) {
     if (body instanceof Response) return body;
 
     const data = validateSticker(body);
-    if (data.error) return data.error;
+    if ("error" in data) return data.error;
 
     const result = db.query(
         "UPDATE stickers SET nome = ?, imagem = ?, categoria = ? WHERE id = ?"
