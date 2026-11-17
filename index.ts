@@ -234,6 +234,16 @@ async function patchSticker(req: Request, id: number) {
 const server = Bun.serve({
     port: Number(Bun.env.PORT ?? 3000),
     routes: {
+        "/": {
+            GET: () => new Response(Bun.file("./index.html"), {
+                headers: { "Content-Type": "text/html; charset=utf-8" }
+            })
+        },
+        "/index.html": {
+            GET: () => new Response(Bun.file("./index.html"), {
+                headers: { "Content-Type": "text/html; charset=utf-8" }
+            })
+        },
         "/user": {
             GET: () => Response.json(
                 db.query("SELECT id, username, email FROM users ORDER BY id DESC").all()
