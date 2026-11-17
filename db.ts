@@ -1,14 +1,24 @@
 import { Database } from "bun:sqlite";
 
 const db = new Database("database.sqlite");
-const query = db.query(`
+db.exec("PRAGMA foreign_keys = ON;");
+
+db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-        id              INTEGER PRIMARY KEY AUTOINCREMENT,
-        username        TEXT NOT NULL UNIQUE,
-        email           TEXT NOT NULL UNIQUE,
-        password_hash   TEXT NOT NULL
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL
     );
 `);
-query.run();
 
-export { db }
+db.exec(`
+    CREATE TABLE IF NOT EXISTS stickers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        imagem TEXT NOT NULL,
+        categoria TEXT NOT NULL
+    );
+`);
+
+export { db };
